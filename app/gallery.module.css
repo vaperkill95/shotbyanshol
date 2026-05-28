@@ -495,6 +495,37 @@
   border: 0.5px solid rgba(248, 244, 238, 0.2);
 }
 
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 96px 24px 110px;
+  text-align: center;
+  min-height: 360px;
+  margin-bottom: 18px;
+}
+.emptyMark {
+  font-size: 22px;
+  color: rgba(255, 210, 160, 0.5);
+  margin-bottom: 20px;
+  animation: pulseSoft 3.4s ease-in-out infinite;
+}
+.emptyTitle {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 22px;
+  font-style: italic;
+  font-weight: 400;
+  color: rgba(248, 244, 238, 0.82);
+  margin-bottom: 8px;
+}
+.emptySub {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: rgba(248, 244, 238, 0.4);
+  text-transform: uppercase;
+}
+
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);

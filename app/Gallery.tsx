@@ -2,16 +2,17 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
 import styles from './gallery.module.css';
-import {
-  photos as allPhotos,
-  categories,
-  type GalleryItem,
-  type MediaType,
-} from './placeholder-data';
+import type { GalleryItem, MediaType } from '@/lib/types';
 
 const PER_PAGE_OPTIONS = [10, 20, 50, 100];
 
-export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }) {
+interface GalleryProps {
+  items: GalleryItem[];
+  categories: string[];
+  bookingStatus: string;
+}
+
+export default function Gallery({ items, categories, bookingStatus }: GalleryProps) {
   const [category, setCategory] = useState<string>('all');
   const [mediaType, setMediaType] = useState<'all' | MediaType>('all');
   const [perPage, setPerPage] = useState(20);
@@ -29,7 +30,6 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
     [items, category, mediaType],
   );
 
-  // Reset to page 1 whenever a filter or the page size changes.
   useEffect(() => {
     setPage(1);
   }, [category, mediaType, perPage]);
@@ -41,19 +41,13 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
   const from = filtered.length === 0 ? 0 : start + 1;
   const to = Math.min(start + perPage, filtered.length);
 
-  // Cursor glow that follows the pointer with eased lag.
   const canvasRef = useRef<HTMLDivElement>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const canvas = canvasRef.current;
     const cursor = cursorRef.current;
     if (!canvas || !cursor) return;
-    let tx = 0;
-    let ty = 0;
-    let cx = -300;
-    let cy = -300;
-    let raf = 0;
-    let running = false;
+    let tx = 0, ty = 0, cx = -300, cy = -300, raf = 0, running = false;
     const loop = () => {
       cx += (tx - cx) * 0.12;
       cy += (ty - cy) * 0.12;
@@ -74,9 +68,7 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
         raf = requestAnimationFrame(loop);
       }
     };
-    const onLeave = () => {
-      cursor.style.opacity = '0';
-    };
+    const onLeave = () => { cursor.style.opacity = '0'; };
     canvas.addEventListener('mousemove', onMove);
     canvas.addEventListener('mouseleave', onLeave);
     return () => {
@@ -86,7 +78,6 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
     };
   }, []);
 
-  // Subtle film-grain flicker by reseeding the turbulence filter.
   const turbRef = useRef<SVGFETurbulenceElement>(null);
   useEffect(() => {
     let seed = 1;
@@ -97,7 +88,6 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
     return () => clearInterval(id);
   }, []);
 
-  // Lightbox keyboard controls.
   useEffect(() => {
     if (lightboxIndex === null) return;
     const onKey = (e: KeyboardEvent) => {
@@ -113,7 +103,6 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
     return () => window.removeEventListener('keydown', onKey);
   }, [lightboxIndex, filtered.length]);
 
-  // Close the show-count menu on any outside click.
   useEffect(() => {
     if (!menuOpen) return;
     const close = () => setMenuOpen(false);
@@ -123,6 +112,21 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
 
   const lbItem = lightboxIndex !== null ? filtered[lightboxIndex] : null;
   const gridKey = `${category}-${mediaType}-${perPage}-${safePage}`;
+
+  const photoStyle = (url: string | null) =>
+    url
+      ? { backgroundImage: `url(${url})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+      : { background: 'linear-gradient(160deg, #2a2418, #14110c)' };
+
+  const lbMediaStyle = (url: string | null) =>
+    url
+      ? {
+          backgroundImage: `url(${url})`,
+          backgroundSize: 'contain',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'center',
+        }
+      : { background: 'linear-gradient(160deg, #2a2418, #14110c)' };
 
   return (
     <div className={styles.canvas} ref={canvasRef}>
@@ -230,48 +234,60 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
           </div>
         </div>
 
-        <div className={styles.grid} key={gridKey}>
-          {visible.map((p, i) => (
-            <button
-              key={p.id}
-              className={styles.photo}
-              style={{ animationDelay: `${i * 38}ms` }}
-              onClick={() => setLightboxIndex(start + i)}
-              aria-label={`Open ${p.caption}`}
-            >
-              <span className={styles.photoInner}>
-                <span className={styles.photoBg} style={{ background: p.bg }} />
-                <span className={styles.photoOverlay}>
-                  <span className={styles.photoCap}>{p.caption}</span>
+        {items.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyMark}>✦</div>
+            <div className={styles.emptyTitle}>Gallery coming online</div>
+            <div className={styles.emptySub}>First images uploading soon.</div>
+          </div>
+        ) : (
+          <div className={styles.grid} key={gridKey}>
+            {visible.map((p, i) => (
+              <button
+                key={p.id}
+                className={styles.photo}
+                style={{ animationDelay: `${i * 38}ms` }}
+                onClick={() => setLightboxIndex(start + i)}
+                aria-label={`Open ${p.caption || 'media'}`}
+              >
+                <span className={styles.photoInner}>
+                  <span className={styles.photoBg} style={photoStyle(p.imageUrl)} />
+                  <span className={styles.photoOverlay}>
+                    <span className={styles.photoCap}>{p.caption || 'Untitled'}</span>
+                  </span>
                 </span>
-              </span>
-              {p.type === 'video' && <span className={styles.playBadge}>▶</span>}
-            </button>
-          ))}
-        </div>
+                {p.type === 'video' && <span className={styles.playBadge}>▶</span>}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className={styles.foot}>
           <span>
             <span className={styles.pulse} />
-            Showing {from}–{to} of {filtered.length}
+            {items.length === 0
+              ? bookingStatus
+              : `Showing ${from}\u2013${to} of ${filtered.length}`}
           </span>
-          <span className={styles.pager}>
-            <button
-              className={`${styles.pagerBtn} ${safePage === 1 ? styles.disabled : ''}`}
-              onClick={() => setPage((pg) => Math.max(1, pg - 1))}
-            >
-              ← Prev
-            </button>
-            <span className={styles.pagerInfo}>
-              Page {safePage} of {totalPages}
+          {items.length > 0 && (
+            <span className={styles.pager}>
+              <button
+                className={`${styles.pagerBtn} ${safePage === 1 ? styles.disabled : ''}`}
+                onClick={() => setPage((pg) => Math.max(1, pg - 1))}
+              >
+                ← Prev
+              </button>
+              <span className={styles.pagerInfo}>
+                Page {safePage} of {totalPages}
+              </span>
+              <button
+                className={`${styles.pagerBtn} ${safePage === totalPages ? styles.disabled : ''}`}
+                onClick={() => setPage((pg) => Math.min(totalPages, pg + 1))}
+              >
+                Next →
+              </button>
             </span>
-            <button
-              className={`${styles.pagerBtn} ${safePage === totalPages ? styles.disabled : ''}`}
-              onClick={() => setPage((pg) => Math.min(totalPages, pg + 1))}
-            >
-              Next →
-            </button>
-          </span>
+          )}
         </div>
       </div>
 
@@ -305,9 +321,9 @@ export default function Gallery({ items = allPhotos }: { items?: GalleryItem[] }
             →
           </button>
           <div className={styles.lbWrap}>
-            <div className={styles.lbMedia} style={{ background: lbItem.bg }} />
+            <div className={styles.lbMedia} style={lbMediaStyle(lbItem.imageUrl)} />
             <div className={styles.lbInfo}>
-              <div className={styles.lbCap}>{lbItem.caption}</div>
+              <div className={styles.lbCap}>{lbItem.caption || 'Untitled'}</div>
               <div className={styles.lbMeta}>
                 {lbItem.category.toUpperCase()} · 2026
               </div>

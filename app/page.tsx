@@ -1,7 +1,21 @@
 import Gallery from './Gallery';
-import { photos } from './placeholder-data';
+import { getCategories, getMedia, getSiteSettings } from '@/lib/queries';
 
-export default function Home() {
-  // Later, `photos` gets replaced by a live fetch from the database.
-  return <Gallery items={photos} />;
+// Render fresh on every request so admin uploads appear immediately.
+export const dynamic = 'force-dynamic';
+
+export default async function Home() {
+  const [items, cats, settings] = await Promise.all([
+    getMedia(),
+    getCategories(),
+    getSiteSettings(),
+  ]);
+
+  return (
+    <Gallery
+      items={items}
+      categories={cats.map((c) => c.slug)}
+      bookingStatus={settings.bookingStatus}
+    />
+  );
 }

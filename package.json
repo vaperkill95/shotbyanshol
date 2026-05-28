@@ -1,6 +1,6 @@
 {
   "name": "shotbyanshol",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@neondatabase/serverless": "^0.10.4",
+    "drizzle-orm": "^0.36.4",
     "next": "^16.2.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"

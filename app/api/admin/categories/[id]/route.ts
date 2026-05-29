@@ -87,4 +87,3 @@ export async function DELETE(
   await db.delete(categories).where(eq(categories.id, catId));
   return NextResponse.json({ success: true });
 }
-

@@ -408,36 +408,31 @@
 .lbWrap {
   position: absolute;
   inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 60px 70px 80px;
-  box-sizing: border-box;
   pointer-events: none;
   z-index: 2;
 }
 .lbMedia {
-  width: 100%;
-  max-width: 880px;
-  max-height: calc(100vh - 200px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(80vw, 880px);
   aspect-ratio: 3 / 2;
-  position: relative;
+  max-height: calc(100vh - 200px);
+  transform: translate(-50%, -55%) scale(0.94);
   opacity: 0;
-  transform: scale(0.94);
-  animation: lbIn 440ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
-  background-color: rgba(0, 0, 0, 0.4);
+  animation: lbAbsIn 440ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
   pointer-events: auto;
 }
 .lbVideoWrap {
-  width: 100%;
-  max-width: 980px;
-  max-height: calc(100vh - 200px);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(86vw, 980px);
   aspect-ratio: 16 / 9;
-  position: relative;
+  max-height: calc(100vh - 200px);
+  transform: translate(-50%, -55%) scale(0.94);
   opacity: 0;
-  transform: scale(0.94);
-  animation: lbIn 440ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
+  animation: lbAbsIn 440ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
   background: #000;
   pointer-events: auto;
 }
@@ -449,10 +444,13 @@
   border: 0;
 }
 .lbInfo {
-  margin-top: 22px;
+  position: absolute;
+  bottom: 36px;
+  left: 50%;
+  transform: translateX(-50%);
   text-align: center;
+  max-width: min(80vw, 880px);
   pointer-events: auto;
-  max-width: 880px;
 }
 .lbCap {
   font-size: 15px;
@@ -578,6 +576,12 @@
   to {
     opacity: 1;
     transform: scale(1);
+  }
+}
+@keyframes lbAbsIn {
+  to {
+    opacity: 1;
+    transform: translate(-50%, -55%) scale(1);
   }
 }
 @keyframes fadeIn {

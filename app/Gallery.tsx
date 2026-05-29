@@ -146,7 +146,7 @@ export default function Gallery({ items, categories, bookingStatus, siteName }: 
         {brandShort.toUpperCase()}<span>.</span>
       </div>
       <div className={styles.edgeL}>PHOTOGRAPHY · {brandShort.toUpperCase()} · 2026</div>
-      <div className={styles.edgeR}>EST. 2026 · NY</div>
+      <div className={styles.edgeR}>EST. 2026 · TX</div>
 
       <div className={styles.cursor} ref={cursorRef} />
 

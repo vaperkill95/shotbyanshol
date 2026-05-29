@@ -779,3 +779,156 @@
   pointer-events: none;
   font-weight: 500;
 }
+
+/* ---------- Edit button on tile + Edit modal ---------- */
+
+.tileEditBtn {
+  background: rgba(0, 0, 0, 0.6);
+  border: 0.5px solid rgba(248, 244, 238, 0.4);
+  color: rgba(248, 244, 238, 0.92);
+  padding: 5px 10px;
+  font: inherit;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 2px;
+  margin-right: 4px;
+}
+.tileEditBtn:hover {
+  background: rgba(248, 244, 238, 0.92);
+  color: #0c0907;
+}
+
+.mediaOverlay {
+  justify-content: flex-end;
+}
+
+.editModal {
+  position: fixed;
+  inset: 0;
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.editBackdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(4, 3, 2, 0.82);
+  backdrop-filter: blur(3px);
+  animation: editFadeIn 220ms ease forwards;
+}
+.editCard {
+  position: relative;
+  z-index: 2;
+  background: #100c08;
+  border: 0.5px solid rgba(248, 244, 238, 0.14);
+  border-radius: 8px;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  animation: editPop 320ms cubic-bezier(0.25, 0.8, 0.3, 1) forwards;
+  transform: scale(0.96);
+  opacity: 0;
+}
+.editClose {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 26px;
+  line-height: 1;
+  padding: 4px 10px;
+  background: none;
+  border: none;
+  color: rgba(248, 244, 238, 0.55);
+  cursor: pointer;
+  z-index: 5;
+}
+.editClose:hover { color: rgba(248, 244, 238, 0.98); }
+
+.editPreview {
+  position: relative;
+  background: rgba(0, 0, 0, 0.4);
+  border-right: 0.5px solid rgba(248, 244, 238, 0.06);
+  min-height: 280px;
+}
+.editPreviewImg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+.editVideoBadge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  color: rgba(255, 250, 245, 0.98);
+  background: rgba(8, 6, 4, 0.85);
+  padding: 4px 8px;
+  border-radius: 2px;
+  font-weight: 500;
+}
+
+.editForm {
+  padding: 28px 26px 24px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.editTitle {
+  font-family: var(--font-fraunces), Georgia, serif;
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  margin-bottom: 18px;
+}
+
+.editMeta {
+  margin: 4px 0 12px;
+}
+.editMetaValue {
+  display: block;
+  font-size: 11px;
+  color: rgba(248, 244, 238, 0.55);
+  background: rgba(0, 0, 0, 0.25);
+  padding: 7px 9px;
+  border-radius: 2px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  word-break: break-all;
+  margin-top: 5px;
+}
+
+.editActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.editActionsRight {
+  display: flex;
+  gap: 8px;
+}
+
+@keyframes editFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes editPop { to { transform: scale(1); opacity: 1; } }
+
+@media (max-width: 640px) {
+  .editCard {
+    grid-template-columns: 1fr;
+    max-width: 480px;
+  }
+  .editPreview {
+    aspect-ratio: 4 / 3;
+    min-height: 0;
+    border-right: none;
+    border-bottom: 0.5px solid rgba(248, 244, 238, 0.06);
+  }
+}

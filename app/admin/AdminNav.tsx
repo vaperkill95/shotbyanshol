@@ -6,6 +6,7 @@ import styles from './admin.module.css';
 
 const links = [
   { href: '/admin', label: 'Dashboard' },
+  { href: '/admin/bookings', label: 'Bookings' },
   { href: '/admin/categories', label: 'Categories' },
   { href: '/admin/settings', label: 'Site settings' },
 ];

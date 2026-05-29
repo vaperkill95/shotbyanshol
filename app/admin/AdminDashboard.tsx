@@ -8,6 +8,8 @@ interface MediaRow {
   id: number;
   caption: string;
   imageUrl: string | null;
+  videoUrl: string | null;
+  type: string;
   categoryId: number | null;
 }
 
@@ -83,6 +85,44 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
   const [category, setCategory] = useState<string>(categories[0]?.slug || 'uncategorized');
   const [dragging, setDragging] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Video state.
+  const [videoUrl, setVideoUrl] = useState('');
+  const [videoCaption, setVideoCaption] = useState('');
+  const [videoCategory, setVideoCategory] = useState<string>(
+    categories[0]?.slug || 'uncategorized',
+  );
+  const [videoBusy, setVideoBusy] = useState(false);
+  const [videoError, setVideoError] = useState<string | null>(null);
+
+  const handleAddVideo = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!videoUrl.trim()) return;
+    setVideoBusy(true);
+    setVideoError(null);
+    try {
+      const res = await fetch('/api/admin/videos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vimeoUrl: videoUrl.trim(),
+          caption: videoCaption.trim(),
+          category: videoCategory,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || 'Could not add video');
+      }
+      setItems((prev) => [data.media as MediaRow, ...prev]);
+      setVideoUrl('');
+      setVideoCaption('');
+    } catch (err) {
+      setVideoError(err instanceof Error ? err.message : 'Could not add video');
+    } finally {
+      setVideoBusy(false);
+    }
+  };
 
   const updateQueueItem = (id: string, patch: Partial<QueuedFile>) => {
     setQueue((q) => q.map((it) => (it.id === id ? { ...it, ...patch } : it)));
@@ -252,9 +292,74 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
         )}
       </section>
 
+      <section className={styles.uploadCard}>
+        <div className={styles.uploadHeader}>
+          <div>
+            <div className={styles.cardTitle}>Add a video</div>
+            <div className={styles.cardSub}>
+              Upload your video to Vimeo first, then paste the share link here.
+              The thumbnail loads automatically.
+            </div>
+          </div>
+          <label className={styles.categorySelector}>
+            <span className={styles.label}>Assign to</span>
+            <select
+              className={styles.select}
+              value={videoCategory}
+              onChange={(e) => setVideoCategory(e.target.value)}
+            >
+              <option value="uncategorized">Uncategorized</option>
+              {categories.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
+
+        <form onSubmit={handleAddVideo}>
+          <label className={styles.field}>
+            <span className={styles.label}>Vimeo URL</span>
+            <input
+              type="url"
+              className={styles.input}
+              placeholder="https://vimeo.com/123456789"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              disabled={videoBusy}
+              required
+            />
+          </label>
+
+          <label className={styles.field}>
+            <span className={styles.label}>Caption (optional)</span>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder="Leave blank to use Vimeo's title"
+              value={videoCaption}
+              onChange={(e) => setVideoCaption(e.target.value)}
+              maxLength={200}
+              disabled={videoBusy}
+            />
+          </label>
+
+          {videoError && <div className={styles.error}>{videoError}</div>}
+
+          <button
+            type="submit"
+            className={styles.primaryBtn}
+            disabled={videoBusy || !videoUrl.trim()}
+          >
+            {videoBusy ? 'Adding…' : 'Add video'}
+          </button>
+        </form>
+      </section>
+
       <section className={styles.mediaSection}>
         <div className={styles.sectionHeader}>
-          <div className={styles.sectionTitle}>Your photos</div>
+          <div className={styles.sectionTitle}>Your media</div>
           <div className={styles.sectionCount}>{items.length} total</div>
         </div>
 
@@ -270,6 +375,7 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
                   className={styles.mediaThumb}
                   style={m.imageUrl ? { backgroundImage: `url(${m.imageUrl})` } : undefined}
                 />
+                {m.type === 'video' && <div className={styles.adminVideoBadge}>▶ VIDEO</div>}
                 <div className={styles.mediaOverlay}>
                   <button
                     className={styles.deleteBtn}

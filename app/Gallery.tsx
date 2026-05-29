@@ -10,9 +10,17 @@ interface GalleryProps {
   items: GalleryItem[];
   categories: string[];
   bookingStatus: string;
+  siteName: string;
 }
 
-export default function Gallery({ items, categories, bookingStatus }: GalleryProps) {
+export default function Gallery({ items, categories, bookingStatus, siteName }: GalleryProps) {
+  // The watermark looks best with a single short word. Derive it from siteName:
+  // strip a leading "ShotBy" if present, otherwise take the first word.
+  const brandShort = (() => {
+    const stripped = siteName.replace(/^shot\s*by\s*/i, '').trim();
+    const word = (stripped || siteName).split(/\s+/)[0] || 'Studio';
+    return word;
+  })();
   const [category, setCategory] = useState<string>('all');
   const [mediaType, setMediaType] = useState<'all' | MediaType>('all');
   const [perPage, setPerPage] = useState(20);
@@ -135,9 +143,9 @@ export default function Gallery({ items, categories, bookingStatus }: GalleryPro
       <div className={`${styles.blob} ${styles.blobC}`} />
 
       <div className={styles.watermark}>
-        ANSHOL<span>.</span>
+        {brandShort.toUpperCase()}<span>.</span>
       </div>
-      <div className={styles.edgeL}>PHOTOGRAPHY · ANSHOL · 2026</div>
+      <div className={styles.edgeL}>PHOTOGRAPHY · {brandShort.toUpperCase()} · 2026</div>
       <div className={styles.edgeR}>EST. 2026 · NY</div>
 
       <div className={styles.cursor} ref={cursorRef} />
@@ -168,7 +176,7 @@ export default function Gallery({ items, categories, bookingStatus }: GalleryPro
       <div className={styles.content}>
         <nav className={styles.nav}>
           <div className={styles.mark}>
-            Anshol<span>.</span>
+            {siteName}<span>.</span>
           </div>
           <div className={styles.links}>
             <a href="#">Work</a>

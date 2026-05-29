@@ -765,3 +765,17 @@
   display: inline-flex;
   align-items: center;
 }
+
+.adminVideoBadge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  color: rgba(255, 250, 245, 0.95);
+  background: rgba(8, 6, 4, 0.7);
+  padding: 3px 7px;
+  border-radius: 2px;
+  pointer-events: none;
+  font-weight: 500;
+}

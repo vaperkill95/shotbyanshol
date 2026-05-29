@@ -1,0 +1,23 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { getSessionCookie } from 'better-auth/cookies';
+
+export async function middleware(request: NextRequest) {
+  const path = request.nextUrl.pathname;
+
+  // These two pages must be reachable without a session.
+  if (path === '/admin/login' || path === '/admin/setup') {
+    return NextResponse.next();
+  }
+
+  const sessionCookie = getSessionCookie(request);
+  if (!sessionCookie) {
+    const loginUrl = new URL('/admin/login', request.url);
+    return NextResponse.redirect(loginUrl);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/admin', '/admin/:path*'],
+};

@@ -181,7 +181,7 @@ export default function Gallery({ items, categories, bookingStatus, siteName }: 
           <div className={styles.links}>
             <a href="#">Work</a>
             <a href="#">About</a>
-            <a href="#">Contact</a>
+            <a href="/contact">Contact</a>
           </div>
         </nav>
 

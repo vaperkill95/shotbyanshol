@@ -29,6 +29,8 @@ export default async function AdminDashboardPage() {
         id: media.id,
         caption: media.caption,
         imageUrl: media.imageUrl,
+        videoUrl: media.videoUrl,
+        type: media.type,
         categoryId: media.categoryId,
       })
       .from(media)

@@ -1,24 +1,3 @@
-import Gallery from './Gallery';
-import { getCategories, getMedia, getSiteSettings } from '@/lib/queries';
-
-export const dynamic = 'force-dynamic';
-
-export default async function Home() {
-  const [items, cats, settings] = await Promise.all([
-    getMedia(),
-    getCategories(),
-    getSiteSettings(),
-  ]);
-
-  return (
-    <Gallery
-      items={items}
-      categories={cats.map((c) => c.slug)}
-      siteName={settings.siteName}
-      bookingStatus={settings.bookingStatus}
-    />
-  );
-}
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import { desc } from 'drizzle-orm';
@@ -27,6 +6,7 @@ import { db } from '@/lib/db';
 import { categories, media } from '@/lib/schema';
 import styles from './admin.module.css';
 import AdminTopbar from './AdminTopbar';
+import AdminNav from './AdminNav';
 import AdminDashboard from './AdminDashboard';
 
 export const dynamic = 'force-dynamic';
@@ -61,17 +41,19 @@ export default async function AdminDashboardPage() {
   return (
     <>
       <AdminTopbar userName={session.user.name || session.user.email} />
-      <main className={styles.main}>
-        <div className={styles.dashboardHero}>
-          <div className={styles.dashboardKicker}>Admin · Dashboard</div>
-          <h1 className={styles.dashboardTitle}>Welcome back, {firstName}.</h1>
-          <p className={styles.dashboardSub}>
-            Upload photos, manage what&apos;s live on your gallery.
-          </p>
-        </div>
-
-        <AdminDashboard categories={cats} initialMedia={mediaRows} />
-      </main>
+      <div className={styles.shellInner}>
+        <AdminNav />
+        <main className={styles.main}>
+          <div className={styles.dashboardHero}>
+            <div className={styles.dashboardKicker}>Admin · Dashboard</div>
+            <h1 className={styles.dashboardTitle}>Welcome back, {firstName}.</h1>
+            <p className={styles.dashboardSub}>
+              Upload photos, manage what&apos;s live on your gallery.
+            </p>
+          </div>
+          <AdminDashboard categories={cats} initialMedia={mediaRows} />
+        </main>
+      </div>
     </>
   );
 }

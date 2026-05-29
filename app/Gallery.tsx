@@ -180,7 +180,7 @@ export default function Gallery({ items, categories, bookingStatus, siteName }: 
           </div>
           <div className={styles.links}>
             <a href="#">Work</a>
-            <a href="#">About</a>
+            <a href="/about">About</a>
             <a href="/contact">Contact</a>
           </div>
         </nav>

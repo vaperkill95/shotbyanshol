@@ -1,17 +1,39 @@
 import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
+import { desc } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
+import { db } from '@/lib/db';
+import { categories, media } from '@/lib/schema';
 import styles from './admin.module.css';
 import AdminTopbar from './AdminTopbar';
+import AdminDashboard from './AdminDashboard';
 
 export const dynamic = 'force-dynamic';
 
-export default async function AdminDashboard() {
+export default async function AdminDashboardPage() {
   const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) redirect('/admin/login');
 
-  if (!session) {
-    redirect('/admin/login');
-  }
+  const [cats, mediaRows] = await Promise.all([
+    db
+      .select({
+        id: categories.id,
+        name: categories.name,
+        slug: categories.slug,
+      })
+      .from(categories)
+      .orderBy(categories.sortOrder),
+    db
+      .select({
+        id: media.id,
+        caption: media.caption,
+        imageUrl: media.imageUrl,
+        categoryId: media.categoryId,
+      })
+      .from(media)
+      .orderBy(desc(media.sortOrder), desc(media.id))
+      .limit(200),
+  ]);
 
   const firstName = session.user.name?.split(' ')[0] || 'Anshol';
 
@@ -23,13 +45,11 @@ export default async function AdminDashboard() {
           <div className={styles.dashboardKicker}>Admin · Dashboard</div>
           <h1 className={styles.dashboardTitle}>Welcome back, {firstName}.</h1>
           <p className={styles.dashboardSub}>
-            You&apos;re signed in. The upload + manage panel slots in here next.
+            Upload photos, manage what&apos;s live on your gallery.
           </p>
         </div>
 
-        <div className={styles.comingSoon}>
-          ⌁ &nbsp; Upload, categories, bookings, and site settings — coming in the next step.
-        </div>
+        <AdminDashboard categories={cats} initialMedia={mediaRows} />
       </main>
     </>
   );

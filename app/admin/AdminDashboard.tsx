@@ -3,6 +3,7 @@
 import { useState, useRef, ChangeEvent, DragEvent } from 'react';
 import styles from './admin.module.css';
 import type { Category } from '@/lib/types';
+import EditMediaModal from './EditMediaModal';
 
 interface MediaRow {
   id: number;
@@ -94,6 +95,9 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
   );
   const [videoBusy, setVideoBusy] = useState(false);
   const [videoError, setVideoError] = useState<string | null>(null);
+
+  // Edit modal state.
+  const [editingItem, setEditingItem] = useState<MediaRow | null>(null);
 
   const handleAddVideo = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -378,6 +382,14 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
                 {m.type === 'video' && <div className={styles.adminVideoBadge}>▶ VIDEO</div>}
                 <div className={styles.mediaOverlay}>
                   <button
+                    className={styles.tileEditBtn}
+                    onClick={() => setEditingItem(m)}
+                    aria-label="Edit"
+                    title="Edit"
+                  >
+                    Edit
+                  </button>
+                  <button
                     className={styles.deleteBtn}
                     onClick={() => handleDelete(m.id)}
                     aria-label="Delete"
@@ -392,6 +404,23 @@ export default function AdminDashboard({ categories, initialMedia }: Props) {
           </div>
         )}
       </section>
+
+      {editingItem && (
+        <EditMediaModal
+          key={editingItem.id}
+          item={editingItem}
+          categories={categories}
+          onClose={() => setEditingItem(null)}
+          onSaved={(updated) => {
+            setItems((p) => p.map((it) => (it.id === updated.id ? { ...it, ...updated } : it)));
+            setEditingItem(null);
+          }}
+          onDeleted={(id) => {
+            setItems((p) => p.filter((it) => it.id !== id));
+            setEditingItem(null);
+          }}
+        />
+      )}
     </>
   );
 }
